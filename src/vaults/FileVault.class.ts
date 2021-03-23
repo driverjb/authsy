@@ -4,14 +4,10 @@ import { VaultEntry } from '../interfaces/VaultEntry.interface';
 import fs from 'fs';
 import path from 'path';
 import Joi from 'joi';
+import validators from '../util/validators.module';
+import errors from '../util/errors.module';
 
-const validVaultEntry = Joi.object({
-  id: Joi.number().min(1).required(),
-  passwordHash: Joi.string().required(),
-  salt: Joi.string().required()
-});
-
-const validVaultFile = Joi.object().pattern(Joi.number().min(1), validVaultEntry);
+const validVaultFile = Joi.object().pattern(Joi.number().min(1), validators.vaultEntry);
 
 export class FileVault extends Vault {
   private _filePath: string;
@@ -55,38 +51,37 @@ export class FileVault extends Vault {
   }
   public async authenticate(id: number, password: string): Promise<boolean> {
     let entry = this._data[id];
-    let { error } = validVaultEntry.validate(entry);
+    let { error } = validators.vaultEntry.validate(entry);
     if (error) throw error;
-    let testEntry = await this.createPasswordHash(entry.id, password, entry.salt);
+    let testEntry = await this.createPasswordHash(password, entry.salt);
     return testEntry.passwordHash === entry.passwordHash;
   }
   public async create(password: string): Promise<number> {
-    let nextIndex = this.nextIndex;
-    let newEntry = await this.createPasswordHash(nextIndex, password);
-    expect(newEntry.id).to.equal(nextIndex);
+    let id = this.nextIndex;
+    let newEntry = await this.createPasswordHash(password);
     expect(newEntry.passwordHash).to.be.a('string').lengthOf.greaterThan(32);
     expect(newEntry.salt).to.be.a('string').lengthOf.greaterThan(32);
-    this._data[nextIndex] = newEntry;
+    this._data[id] = { id, ...newEntry };
     this.saveFile();
-    return nextIndex;
+    return id;
   }
   public async update(id: number, password: string): Promise<boolean> {
     let entry: VaultEntry = this._data[id];
     if (entry) {
-      let { error } = validVaultEntry.validate(entry);
+      let { error } = validators.vaultEntry.validate(entry);
       if (error) throw error;
-      let newEntry = await this.createPasswordHash(entry.id, password);
-      this._data[entry.id] = newEntry;
+      let newEntry = await this.createPasswordHash(password);
+      this._data[entry.id] = { id: entry.id, ...newEntry };
       this.saveFile();
       return true;
-    } else throw new Error(`User id does not exist. Cannot update password hash.`);
+    } else throw errors.cannotUpdate;
   }
   public async delete(id: number): Promise<boolean> {
     if (this._data[id]) {
       delete this._data[id];
       this.saveFile();
       return true;
-    } else throw new Error(`User id does not exist. Cannot delete entry.`);
+    } else throw errors.cannotDelete;
   }
 }
 
