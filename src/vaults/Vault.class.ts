@@ -1,5 +1,5 @@
 import { pbkdf2, createHash } from 'crypto';
-import { VaultEntry } from '../interfaces/VaultEntry.interface';
+import { HashResult } from '../interfaces/HashResult.interface';
 
 export abstract class Vault {
   private _type: string;
@@ -22,14 +22,14 @@ export abstract class Vault {
    * @param password The password to be hashed
    * @returns A vault entry
    */
-  protected createPasswordHash(id: number, password: string, salt?: string): Promise<VaultEntry> {
+  protected createPasswordHash(password: string, salt?: string): Promise<HashResult> {
     let randomNumberString = Math.floor(Math.random() * 1000000000000000000).toString();
     let theSalt = salt ?? createHash('sha512').update(randomNumberString).digest('hex');
     return new Promise((resolve, reject) => {
       pbkdf2(password, theSalt, this.iterations, 64, 'sha512', (err, key) => {
         if (err) reject(err);
         else {
-          let entry: VaultEntry = { id, passwordHash: key.toString('hex'), salt: theSalt };
+          let entry: HashResult = { passwordHash: key.toString('hex'), salt: theSalt };
           resolve(entry);
         }
       });
