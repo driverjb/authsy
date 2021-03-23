@@ -6,8 +6,7 @@
   "scripts": {
     "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
     "test:watch": "nodemon --config nodemon.json",
-    "build": "tsc --project tsconfig.json",
-    "prepublish": "tsc --project tsconfig.json"
+    "build": "tsc --project tsconfig.json"
   },
   "repository": {
     "type": "git",
