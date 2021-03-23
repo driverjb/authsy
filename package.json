@@ -1,0 +1,37 @@
+{
+  "name": "authsy",
+  "version": "0.0.1",
+  "description": "An easy to use authentication toolkit for use with Node.js",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
+    "test:watch": "nodemon --config nodemon.json",
+    "build": "tsc --project tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/driverjb/authsy.git"
+  },
+  "keywords": [
+    "authentication"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/driverjb/authsy/issues"
+  },
+  "homepage": "https://github.com/driverjb/authsy#readme",
+  "dependencies": {
+    "chai": "^4.3.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.35",
+    "mocha": "^8.3.2",
+    "nodemon": "^2.0.7",
+    "nyc": "^15.1.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  }
+}
