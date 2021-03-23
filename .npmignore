@@ -3,3 +3,6 @@ test
 .nyc_output
 tsconfig.json
 nodemon.json
+.git
+.gitignore
+package-lock.json
