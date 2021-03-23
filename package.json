@@ -1,6 +1,6 @@
 {
   "name": "authsy",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "An easy to use authentication toolkit for use with Node.js",
   "main": "lib/index.js",
   "scripts": {
@@ -22,10 +22,12 @@
   },
   "homepage": "https://github.com/driverjb/authsy#readme",
   "dependencies": {
+    "better-sqlite3": "^7.1.2",
     "chai": "^4.3.4",
     "joi": "^17.4.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^5.4.1",
     "@types/chai": "^4.2.15",
     "@types/joi": "^17.2.3",
     "@types/mocha": "^8.2.2",
