@@ -1,9 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
+import FileVaultTests from './FileVault.test';
 
-describe('Hello world!', () => {
-  it('Should pass!', () => {
-    expect(true).to.be.true;
-    expect(false).to.be.false;
-  });
+describe('Vault Tests', () => {
+  FileVaultTests();
 });
