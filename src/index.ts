@@ -1,1 +1,2 @@
-console.log('Authsy! Coming soon!');
+export * from './vaults/Vault.class';
+export * from './vaults/FileVault.class';
