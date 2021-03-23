@@ -1,4 +1,4 @@
-import { VaultEntry } from '../interfaces/VaultEntry.interface';
+import { HashResult } from '../interfaces/HashResult.interface';
 export declare abstract class Vault {
     private _type;
     private _iterations;
@@ -13,7 +13,7 @@ export declare abstract class Vault {
      * @param password The password to be hashed
      * @returns A vault entry
      */
-    protected createPasswordHash(id: number, password: string, salt?: string): Promise<VaultEntry>;
+    protected createPasswordHash(password: string, salt?: string): Promise<HashResult>;
     /**
      * Authenticate a user
      * @param id The numerical identifier for the given user being authenticated
