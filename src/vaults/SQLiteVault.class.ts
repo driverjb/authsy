@@ -43,17 +43,20 @@ export class SQLiteVault extends Vault {
   public async create(password: string): Promise<number> {
     let hash: HashResult = await this.createPasswordHash(password);
     let id = this._statements['createEntry'].run(hash).lastInsertRowid as number;
+    expect(id, errorsModule.failedCreate).to.be.greaterThan(0);
     return id;
   }
   public async update(id: number, password: string): Promise<boolean> {
     let newHash = await this.createPasswordHash(password);
     let result = this._statements['updateEntry'].run({ id, ...newHash });
-    expect(result.changes, errorsModule.cannotUpdate.message).to.be.greaterThan(0);
+    expect(result.changes, errorsModule.cannotUpdate).to.be.greaterThan(0);
+    expect(result.changes, errorsModule.multiChangeError(result.changes, 'update')).to.be.equal(1);
     return true;
   }
   public async delete(id: number): Promise<boolean> {
     let result = this._statements['deleteEntry'].run({ id });
-    expect(result.changes, errorsModule.cannotDelete.message).to.be.greaterThan(0);
+    expect(result.changes, errorsModule.cannotDelete).to.be.greaterThan(0);
+    expect(result.changes, errorsModule.multiChangeError(result.changes, 'delete')).to.be.equal(1);
     return true;
   }
 }
