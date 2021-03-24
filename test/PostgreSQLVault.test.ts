@@ -1,21 +1,31 @@
 import { expect } from 'chai';
 import 'mocha';
-import { SQLiteVault } from '../src/index';
-import path from 'path';
-import fs from 'fs';
+import { PostgreSQLVault } from '../src/index';
 import common from './common.module';
-import sqlite from 'better-sqlite3';
+import pg from 'pg';
+
+const config: pg.PoolConfig = {
+  host: '192.168.1.2',
+  port: 5432,
+  user: 'joel',
+  password: 'Meghan2012!',
+  database: 'test'
+};
+
 export default function () {
-  const filePath = path.resolve('test1.db');
-  const badPath = path.join('this', 'is', 'not', 'a', 'real', 'path');
-  const db = sqlite(filePath);
-  let v = new SQLiteVault(db, 5);
-  describe('SQLiteVault', () => {
-    after(function () {
-      fs.unlinkSync(filePath);
+  describe('PostgreSQLVault', () => {
+    let pool = new pg.Pool(config);
+    let iterations = 5;
+    let schemaName = 'testauth';
+    let tableName = 'authsy';
+    let v: PostgreSQLVault = new PostgreSQLVault({ pool, iterations, schemaName, tableName });
+    after(async function () {
+      await pool.query(`drop table ${schemaName}.${tableName}`);
+      await pool.query(`drop schema ${schemaName}`);
+      await pool.end();
     });
-    it('Should report its type as sqlite', async function () {
-      expect(v.type).to.equal('sqlite');
+    it('Should report its type as pgsql', async function () {
+      expect(v.type).to.equal('pgsql');
     });
     it('Should create new entries', async function () {
       let newId = await v.create(common.passwords.test);
@@ -26,8 +36,10 @@ export default function () {
     it('Should authenticate the new entry', async function () {
       let authSuccess = await v.authenticate(1, common.passwords.test);
       let authFail = await v.authenticate(1, common.passwords.test + 'FAIL');
+      let authFail2 = await v.authenticate(10, common.passwords.test);
       expect(authSuccess).to.be.true;
       expect(authFail).to.be.false;
+      expect(authFail2).to.be.false;
     });
     it('Should update the password and allow authentication', async function () {
       let updateSuccess = await v.update(1, common.passwords.test2);
@@ -45,7 +57,7 @@ export default function () {
       expect(deleteSuccess).to.be.true;
     });
     it('Should throw an error when deleting a user who does not exist', async function () {
-      expect(async () => await v.delete(2)).to.throw;
+      expect(async () => await v.delete(10)).to.throw;
     });
   });
 }
