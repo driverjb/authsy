@@ -7,8 +7,8 @@ import pg from 'pg';
 const config: pg.PoolConfig = {
   host: '192.168.1.2',
   port: 5432,
-  user: 'joel',
-  password: 'Meghan2012!',
+  user: '',
+  password: '',
   database: 'test'
 };
 
