@@ -45,24 +45,20 @@ export class PostgreSQLVault extends Vault {
     return true;
   }
   public async create(password: string): Promise<number> {
-    let result = await this.createPasswordHash(password);
+    let { passwordHash, salt } = await this.createPasswordHash(password);
     return this._pool
-      .query(this._queries.create.entry, [result.passwordHash, result.salt])
+      .query(this._queries.create.entry, [passwordHash, salt])
       .then((result) => Number(result.rows[0].id));
   }
   public async update(id: number, password: string): Promise<boolean> {
-    let newHash = await this.createPasswordHash(password);
-    let result = await this._pool.query(this._queries.update, [
-      newHash.passwordHash,
-      newHash.salt,
-      id
-    ]);
-    expect(result.rowCount, commonErrors.cannotUpdate.message).to.equal(1);
+    let { passwordHash, salt } = await this.createPasswordHash(password);
+    let { rowCount } = await this._pool.query(this._queries.update, [passwordHash, salt, id]);
+    expect(rowCount, commonErrors.cannotUpdate).to.equal(1);
     return true;
   }
   public async delete(id: number): Promise<boolean> {
-    let result = await this._pool.query(this._queries.delete, [id]);
-    expect(result.rowCount, commonErrors.cannotDelete.message).to.equal(1);
+    let { rowCount } = await this._pool.query(this._queries.delete, [id]);
+    expect(rowCount, commonErrors.cannotDelete).to.equal(1);
     return true;
   }
 }
