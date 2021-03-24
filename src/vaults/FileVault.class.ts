@@ -67,7 +67,7 @@ export class FileVault extends Vault {
   }
   public async update(id: number, password: string): Promise<boolean> {
     let entry: VaultEntry = this._data[id];
-    expect(entry, errors.cannotUpdate.message).to.not.be.undefined;
+    expect(entry, errors.cannotUpdate).to.not.be.undefined;
     let { error } = validators.vaultEntry.validate(entry);
     expect(error, error?.message).to.be.undefined;
     let newEntry = await this.createPasswordHash(password);
@@ -75,7 +75,7 @@ export class FileVault extends Vault {
     return this.saveFile();
   }
   public async delete(id: number): Promise<boolean> {
-    expect(this._data[id], errors.cannotDelete.message).to.not.be.undefined;
+    expect(this._data[id], errors.cannotDelete).to.not.be.undefined;
     delete this._data[id];
     return this.saveFile();
   }
