@@ -38,21 +38,21 @@ export class FileVault extends Vault {
   private loadFile(): { [key: string]: VaultEntry } {
     let temp = JSON.parse(fs.readFileSync(this._filePath).toString());
     let { value, error } = validVaultFile.validate(temp);
-    if (error) throw error;
+    expect(error, error?.message).to.be.undefined;
     return value;
   }
   private saveFile(): boolean {
     let fileName = path.basename(this._filePath);
     let pathName = this._filePath.replace(fileName, '');
-    if (!fs.existsSync(pathName))
-      throw new Error('Specified file path does not exist. Cannot write file.');
-    else fs.writeFileSync(this._filePath, JSON.stringify(this._data));
+    let errorMessage = 'Specified file path does not exist. Cannot write file.';
+    expect(fs.existsSync(pathName), errorMessage).to.be.true;
+    fs.writeFileSync(this._filePath, JSON.stringify(this._data));
     return true;
   }
   public async authenticate(id: number, password: string): Promise<boolean> {
     let entry = this._data[id];
     let { error } = validators.vaultEntry.validate(entry);
-    if (error) throw error;
+    expect(error, error?.message).to.be.undefined;
     let testEntry = await this.createPasswordHash(password, entry.salt);
     return testEntry.passwordHash === entry.passwordHash;
   }
@@ -67,21 +67,17 @@ export class FileVault extends Vault {
   }
   public async update(id: number, password: string): Promise<boolean> {
     let entry: VaultEntry = this._data[id];
-    if (entry) {
-      let { error } = validators.vaultEntry.validate(entry);
-      if (error) throw error;
-      let newEntry = await this.createPasswordHash(password);
-      this._data[entry.id] = { id: entry.id, ...newEntry };
-      this.saveFile();
-      return true;
-    } else throw errors.cannotUpdate;
+    expect(entry, errors.cannotUpdate.message).to.not.be.undefined;
+    let { error } = validators.vaultEntry.validate(entry);
+    expect(error, error?.message).to.be.undefined;
+    let newEntry = await this.createPasswordHash(password);
+    this._data[entry.id] = { id: entry.id, ...newEntry };
+    return this.saveFile();
   }
   public async delete(id: number): Promise<boolean> {
-    if (this._data[id]) {
-      delete this._data[id];
-      this.saveFile();
-      return true;
-    } else throw errors.cannotDelete;
+    expect(this._data[id], errors.cannotDelete.message).to.not.be.undefined;
+    delete this._data[id];
+    return this.saveFile();
   }
 }
 
